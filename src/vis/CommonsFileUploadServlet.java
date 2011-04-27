@@ -3,6 +3,7 @@ package vis;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
@@ -79,12 +80,14 @@ public class CommonsFileUploadServlet extends HttpServlet {
 
 			File file = new File(this.destinationDir,
 					request.getHeader("X-File-Name"));
-			FileOutputStream fos = new FileOutputStream(file);
+			OutputStream fos = new FileOutputStream(file);
 			int br;
-			while ((br = request.getReader().read()) != -1) {
-				fos.write(br);
+			byte bytes[] = new byte[1024];
+			while ((br = request.getInputStream().read(bytes)) > 0) {
+				fos.write(bytes, 0, br);
 			}
 			fos.close();
+			request.getInputStream().close();
 			out.printf(this.RESPONSE, "true", "file",
 					request.getContextPath()
 							+ this.getInitParameter("DESTINATION_DIR_PATH")
